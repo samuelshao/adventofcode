@@ -3,13 +3,11 @@ import re
 def day7(input):
     ans = 0
     cards = list("AKQT98765432J")
-    #print(cards)
     strengthDict = {}
     for i in range(len(cards)):
         strengthDict[cards[i]] = 13 - i
-    #print(strengthDict)
     bidDict = {}
-    #RankDict = {'FiveKind':{}, 'FourKind':{}, 'FullHouse':{}, 'ThreeKind':{}, 'TwoPair':{}, 'OnePair':{}, 'HighCard':{}}
+    RankDict = {'HighCard':{}, 'OnePair':{}, 'TwoPair':{}, 'ThreeKind':{}, 'FullHouse':{}, 'FourKind':{}, 'FiveKind':{}}
     valDict = {}
     valList = []
 
@@ -27,14 +25,13 @@ def day7(input):
         jCount = 0
         for i in range(len(deck)):
             strength = strengthDict[deck[i]]
-            if strength < 10:
-                deckVal += "0" + str(strength) + "00"
-            else:
-                deckVal += str(strength) + "00"
-        
             if deck[i] == 'J':
                 jCount += 1
-
+            if int(strength) < 10:
+                deckVal += '0' + str(strength) + '0'
+            else:
+                deckVal += str(strength) + '0'
+        
         #compute rank
         cardDict = {}
         for i in range(len(deck)):
@@ -45,62 +42,67 @@ def day7(input):
         kind = list(cardDict.values())
         kind.sort(reverse=True)
         kind = "".join([str(kind[i]) for i in range(len(kind))])
-        #print(kind)
+
         if kind == "5":
-            deckVal = int(deckVal) * 1000000000000
+            RankDict['FiveKind'][deck] = deckVal
         elif kind == "41":
             #FourKind.append(deck)
-            if jCount == 1:
-                deckVal = int(deckVal) * 1000000000000
+            if jCount == 1 or jCount == 4:
+                RankDict['FiveKind'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 10000000000
+                RankDict['FourKind'][deck] = deckVal
         elif kind == "32":
             #FullHouse.append(deck)
             if jCount == 1:
-                deckVal = int(deckVal) * 10000000000
-            elif jCount == 2:
-                deckVal = int(deckVal) * 1000000000000
+                RankDict['FourKind'][deck] = deckVal
+            elif jCount == 2 or jCount == 3:
+                RankDict['FiveKind'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 100000000
+                RankDict['FullHouse'][deck] = deckVal
         elif kind == "311":
             #ThreeKind.append(deck)
-            if jCount == 1:
-                deckVal = int(deckVal) * 100000000
+            if jCount == 1 or jCount == 3:
+                RankDict['FourKind'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 1000000
+                RankDict['ThreeKind'][deck] = deckVal
         elif kind == "221":
             #TwoPair.append(deck)
             if jCount == 1:
-                deckVal = int(deckVal) * 100000000
+                RankDict['FullHouse'][deck] = deckVal
             elif jCount == 2:
-                deckVal = int(deckVal) * 10000000000
+                RankDict['FourKind'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 10000
+                RankDict['TwoPair'][deck] = deckVal
         elif kind == "2111":
             #OnePair.append(deck)
-            if jCount == 1:
-                deckVal = int(deckVal) * 1000000
+            if jCount == 1 or jCount == 2:
+                RankDict['ThreeKind'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 100
+                RankDict['OnePair'][deck] = deckVal
         elif kind == "11111":
             #HighCard.append(deck)
             if jCount == 1:
-                deckVal = int(deckVal) * 100
+                RankDict['OnePair'][deck] = deckVal
             else:
-                deckVal = int(deckVal) * 1
-        #print(deck, deckVal)
+                RankDict['HighCard'][deck] = deckVal
 
-        valDict[deckVal] = deck
-        valList.append(deckVal)
+    #print(RankDict)
+
+    # d = dict(sorted(d.items(), key=lambda item:item[1]))
+    for key in RankDict:
+        RankDict[key] = dict(sorted(RankDict[key].items(), key=lambda item: item[1]))
 
     rank = 1
-    valList.sort()
-    for v in valList:
-        ans += bidDict[valDict[v]] * rank
-        #print(valDict[v], bidDict[valDict[v]], rank)
-        rank += 1
-        
+    for key in RankDict:
+        for key2 in RankDict[key]:
+            #print(key2, key, RankDict[key][key2], rank)
+            cardVal = bidDict[key2] * rank
+            #print(bidDict[key2], '*', rank, '=', cardVal)
+            ans += cardVal
+            rank += 1
+
     print(ans)
 
-    #253304319
+    #253362743
+
 day7('input.txt')
