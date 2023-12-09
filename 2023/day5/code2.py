@@ -2,7 +2,7 @@ import re
 
 def day5(input):
     lines = list(open(input))
-    seeds = []
+    seeds = {}
     mapOrder = []
     mapRange = {}
 
@@ -18,8 +18,9 @@ def day5(input):
         elif len(line) > 0:
             line = re.split("\s", line)
             if line[0] == "seeds:":
-                for i in range(1, len(line)):
-                    seeds.append(int(line[i]))
+                for i in range(1, len(line), 2):
+                    seeds[int(line[i])] = int(line[i+1])
+                #print(seeds)
             else:
                 sourceID = int(line[1])
                 destinationID = int(line[0])
@@ -28,23 +29,26 @@ def day5(input):
                 destinationTuple = (destinationID, destinationID + offset - 1)
                 mapRange[destinationName][sourceTuple] = destinationTuple
 
-    locations = []
+    minLocation = float('inf')
     for seed in seeds:
-        currID = seed
-        for mapName in mapOrder:
-            for item in mapRange[mapName]:
-                sourceStart = item[0]
-                sourceEnd = item[1]
-                destinationStart = mapRange[mapName][item][0]
-                destinationEnd = mapRange[mapName][item][1]
+        for index in range(seeds[seed]):
+            currID = seed + index
+            #print(currID)
+            for mapName in mapOrder:
+                for item in mapRange[mapName]:
+                    sourceStart = item[0]
+                    sourceEnd = item[1]
+                    destinationStart = mapRange[mapName][item][0]
+                    destinationEnd = mapRange[mapName][item][1]
+                    
+                    if currID >= sourceStart and currID <= sourceEnd:
+                        offset = destinationStart - sourceStart
+                        currID += offset
+                        break
                 
-                if currID >= sourceStart and currID <= sourceEnd:
-                    offset = destinationStart - sourceStart
-                    currID += offset
-                    break
-                
-        locations.append(currID)
+            if currID < minLocation:
+                minLocation = currID
         
-    print(min(locations))
+    print(minLocation)
 
 day5('input.txt')
