@@ -1,4 +1,5 @@
 import re
+import math
 
 def day8(input):
     lines = list(open(input))
@@ -39,17 +40,10 @@ def day8(input):
     #print(currs)
 
     #lcm
-    def gcd(a, b):
-        while b:
-            a, b = b, a % b
-        return a
-
-    def lcm(a, b):
-        return abs(a*b) // gcd(a, b)
-
     currLCM = pathList[0]
     for num in pathList[1:]:
-        currLCM = lcm(currLCM, num)
+        currLCM = math.lcm(currLCM, num)
+
     print(currLCM)
     
         
